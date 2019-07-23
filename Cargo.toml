@@ -1,0 +1,20 @@
+[package]
+name = "rust-auth"
+version = "0.1.0"
+authors = ["Giorgio Pagnoni <giorgio.pagnoni@sintattica.it>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "1.0.5"
+dotenv = "0.14.1"
+bcrypt = "0.4"
+serde = "1.0.97"
+serde_json = "1.0.40"
+serde_derive = "1.0.97"
+validator = "0.9.0"
+validator_derive = "0.9.0"
+futures = "0.1.25"
+r2d2 = "0.8.5"
+diesel = { version = "1.0.0", features = ["mysql", "r2d2"] }
