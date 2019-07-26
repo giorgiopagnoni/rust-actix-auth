@@ -19,7 +19,7 @@ use std::collections::HashMap;
 pub struct RegisterUserRequest {
     #[validate(email(message = "Invalid email"))]
     email: String,
-    #[validate(length(min = 8))]
+    #[validate(length(min = 8, message = "Must be at least 8 char long"))]
     password: String,
 }
 
@@ -31,12 +31,9 @@ pub fn user_register(
     // validate request
     let res: Result<(), ValidationErrors> = usr_req.validate();
     if res.is_err() {
-        // TODO?
-        let mut err_map: HashMap<&str, Vec<_>> = HashMap::new();
-        for (k, v) in &res.err().unwrap().field_errors() {
-            err_map.insert(k, v.iter().map(|e| e.message.borrow()).collect());
-        }
-        return fut_ok(HttpResponse::BadRequest().finish());
+        let errs = res.err().unwrap();
+        let err_resp = serde_json::to_string(&errs).unwrap();
+        return fut_ok(HttpResponse::BadRequest().body(err_resp));
     }
 
     // check email uniqueness
