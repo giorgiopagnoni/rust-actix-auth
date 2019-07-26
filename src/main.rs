@@ -4,10 +4,9 @@ extern crate r2d2;
 
 use dotenv;
 use actix_web::{HttpServer, App, web, HttpResponse, guard, middleware};
-use diesel::r2d2::ConnectionManager;
-use diesel::MysqlConnection;
 use rust_auth::controllers::{user_register};
 use rust_auth::models::Pool;
+use mysql::OptsBuilder;
 
 fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -17,7 +16,8 @@ fn main() -> std::io::Result<()> {
 
     // db setup
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = ConnectionManager::<MysqlConnection>::new(db_url);
+    let opt = mysql::Opts::from_url(&db_url).unwrap();
+    let manager = r2d2_mysql::MysqlConnectionManager::new(OptsBuilder::from_opts(opt));
     let db_pool: Pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB connection pool");
 
     HttpServer::new(move || {
