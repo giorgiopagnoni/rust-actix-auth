@@ -4,25 +4,21 @@ extern crate r2d2;
 
 use dotenv;
 use actix_web::{HttpServer, App, web, HttpResponse, guard, middleware};
-use rust_auth::controllers::{user_register};
-use rust_auth::models::Pool;
-use mysql::OptsBuilder;
+use rust_auth::controllers::user_register;
+use rust_auth::dataservice::DS;
 
-fn main() -> std::io::Result<()> {
+fn main() {
     dotenv::dotenv().ok();
 
     // socket
     let http_addr = std::env::var("HTTP_ADDR").expect("HTTP_ADDR must be set");
 
-    // db setup
-    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let opt = mysql::Opts::from_url(&db_url).unwrap();
-    let manager = r2d2_mysql::MysqlConnectionManager::new(OptsBuilder::from_opts(opt));
-    let db_pool: Pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB connection pool");
+    // data service
+    let ds = DS::new();
 
     HttpServer::new(move || {
         App::new()
-            .data(db_pool.clone())
+            .data(ds.clone())
             .wrap(middleware::DefaultHeaders::new().header("content-type", "application/json; charset=utf-8"))
             .wrap(middleware::Compress::default())
             .service(
@@ -34,6 +30,8 @@ fn main() -> std::io::Result<()> {
                     .route("/login", web::post().to(|| HttpResponse::NotFound()))
             )
     })
-        .bind(http_addr)?
+        .bind(http_addr)
+        .unwrap()
         .run()
+        .unwrap()
 }

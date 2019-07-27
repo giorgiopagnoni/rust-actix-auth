@@ -1,31 +1,27 @@
 extern crate validator;
-extern crate bcrypt;
 
-use actix_web::{web, Error};
+use crate::dataservice::{DataService, DS};
+
+use actix_web::{web, Error, HttpResponse};
 use serde_derive::Deserialize;
 use validator::{Validate, ValidationErrors};
-use actix_web::HttpResponse;
 use futures::Future;
 use futures::future::ok as fut_ok;
-use crate::models::*;
-use uuid::Uuid;
-use bcrypt::hash;
 use lettre_email::Email;
 use lettre::{SmtpClient, Transport};
 use std::borrow::Borrow;
-use std::collections::HashMap;
 
 #[derive(Debug, Validate, Deserialize)]
 pub struct RegisterUserRequest {
     #[validate(email(message = "Invalid email"))]
-    email: String,
+    pub email: String,
     #[validate(length(min = 8, message = "Must be at least 8 char long"))]
-    password: String,
+    pub password: String,
 }
 
 pub fn user_register(
     usr_req: web::Json<RegisterUserRequest>,
-    db_pool: web::Data<Pool>)
+    ds: web::Data<DS>)
     -> impl Future<Item=HttpResponse, Error=Error> {
 
     // validate request
@@ -37,23 +33,12 @@ pub fn user_register(
     }
 
     // check email uniqueness
-    let mut conn = db_pool.get().unwrap();
-    if conn.prep_exec("SELECT * FROM auth_users WHERE email = :email LIMIT 1",
-                      params! {"email" => &usr_req.email})
-        .unwrap().next().is_some() {
+    if ds.is_email_taken(&usr_req.email) {
         return fut_ok(HttpResponse::Conflict().finish());
     }
 
     // store user
-    let token = Uuid::new_v4().to_string();
-    conn.prep_exec(r"INSERT INTO auth_users (email, passwd, token)
-                                    VALUES (:email, :passwd, :token)",
-                   params! {
-                        "email" => &usr_req.email,
-                        "passwd" => hash(&usr_req.password, 6).unwrap(),
-                        "token" => &token
-                    })
-        .unwrap();
+    let token = ds.persist_new_user(&usr_req);
 
     // send registration email (or let another process handle that?)
     let email = Email::builder()
