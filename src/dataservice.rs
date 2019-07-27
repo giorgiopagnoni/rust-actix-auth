@@ -21,7 +21,6 @@ pub struct MysqlR2D2DataService {
 
 impl MysqlR2D2DataService {
     pub fn new() -> MysqlR2D2DataService {
-        println!("creating db ppoo");
         let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let opt = mysql::Opts::from_url(&db_url).unwrap();
         let manager = r2d2_mysql::MysqlConnectionManager::new(OptsBuilder::from_opts(opt));
