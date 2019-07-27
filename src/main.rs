@@ -1,7 +1,3 @@
-extern crate serde_json;
-extern crate futures;
-extern crate r2d2;
-
 use dotenv;
 use actix_web::{HttpServer, App, web, HttpResponse, guard, middleware};
 use rust_auth::controllers::user_register;

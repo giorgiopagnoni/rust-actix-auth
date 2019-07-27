@@ -1,8 +1,9 @@
-extern crate bcrypt;
-
 use crate::controllers::RegisterUserRequest;
+
 use r2d2_mysql::MysqlConnectionManager;
-use mysql::{OptsBuilder};
+use mysql::OptsBuilder;
+use mysql::params;
+
 use actix_web::web::Json;
 use uuid::Uuid;
 use bcrypt::hash;
@@ -52,7 +53,7 @@ impl DataService for MysqlR2D2DataService {
         let mut conn = self.db_pool.get().unwrap();
         conn.prep_exec(r"INSERT INTO auth_users (email, passwd, token)
                             VALUES (:email, :passwd, :token)",
-                                             params! {
+                       params! {
                 "email" => &usr_req.email,
                 "passwd" => &passwd,
                 "token" => &token

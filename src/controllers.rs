@@ -1,10 +1,9 @@
-extern crate validator;
-
 use crate::dataservice::{DataService, DS};
 
 use actix_web::{web, Error, HttpResponse};
 use serde_derive::Deserialize;
 use validator::{Validate, ValidationErrors};
+use validator_derive::Validate;
 use futures::Future;
 use futures::future::ok as fut_ok;
 use lettre_email::Email;
