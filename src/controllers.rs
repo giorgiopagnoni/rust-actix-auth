@@ -18,10 +18,8 @@ pub struct RegisterUserRequest {
     pub password: String,
 }
 
-pub fn user_register(
-    usr_req: web::Json<RegisterUserRequest>,
-    ds: web::Data<DS>)
-    -> impl Future<Item=HttpResponse, Error=Error> {
+pub fn user_register(usr_req: web::Json<RegisterUserRequest>,
+                     ds: web::Data<DS>) -> impl Future<Item=HttpResponse, Error=Error> {
 
     // validate request
     let res: Result<(), ValidationErrors> = usr_req.validate();
