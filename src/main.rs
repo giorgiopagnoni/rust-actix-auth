@@ -1,7 +1,7 @@
 use dotenv;
 use actix_web::{HttpServer, App, web, HttpResponse, guard, middleware};
 use rust_auth::controllers::user_register;
-use rust_auth::dataservice::DS;
+use rust_auth::dataservice::{MysqlR2D2DataService};
 
 fn main() {
     dotenv::dotenv().ok();
@@ -10,7 +10,7 @@ fn main() {
     let http_addr = std::env::var("HTTP_ADDR").expect("HTTP_ADDR must be set");
 
     // data service
-    let ds = DS::new();
+    let ds = MysqlR2D2DataService::new();
 
     HttpServer::new(move || {
         App::new()
