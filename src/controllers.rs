@@ -51,3 +51,9 @@ pub fn user_register(usr_req: web::Json<RegisterUserRequest>,
 
     return fut_ok(HttpResponse::Created().finish());
 }
+
+pub fn user_verify(token: web::Path<String>, ds: web::Data<DS>)
+                   -> impl Future<Item=HttpResponse, Error=Error> {
+
+    return fut_ok(HttpResponse::NoContent().finish());
+}

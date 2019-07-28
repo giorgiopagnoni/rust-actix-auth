@@ -1,6 +1,6 @@
 use dotenv;
 use actix_web::{HttpServer, App, web, HttpResponse, guard, middleware};
-use rust_auth::controllers::user_register;
+use rust_auth::controllers::{user_register, user_verify};
 use rust_auth::dataservice::{MysqlR2D2DataService};
 use actix_identity::{IdentityService, CookieIdentityPolicy};
 
@@ -26,7 +26,7 @@ fn main() {
                     .guard(guard::Header("content-type", "application/json"))
 
                     .route("/register", web::post().to_async(user_register))
-                    .route("/verify/{token}", web::get().to(|| HttpResponse::NotFound()))
+                    .route("/verify/{token}", web::put().to_async(user_verify))
                     .route("/login", web::post().to(|| HttpResponse::NotFound()))
             )
     })

@@ -1,8 +1,7 @@
 use crate::controllers::RegisterUserRequest;
 
 use r2d2_mysql::MysqlConnectionManager;
-use mysql::OptsBuilder;
-use mysql::params;
+use mysql::{OptsBuilder, params};
 
 use actix_web::web::Json;
 use uuid::Uuid;
