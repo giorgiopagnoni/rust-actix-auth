@@ -8,7 +8,7 @@ fn main() {
     dotenv::dotenv().ok();
 
     // domain
-    let domain = std::env::var("DOMAIN").unwrap_or("localhost".to_string());
+    let domain = std::env::var("DOMAIN").unwrap_or_else(|_| "localhost".to_string());
     // socket
     let http_addr = std::env::var("HTTP_ADDR").expect("HTTP_ADDR must be set");
     // secret
@@ -27,7 +27,7 @@ fn main() {
 
                     .route("/register", web::post().to_async(user_register))
                     .route("/verify/{token}", web::put().to_async(user_verify))
-                    .route("/login", web::post().to(|| HttpResponse::NotFound()))
+                    .route("/login", web::post().to(HttpResponse::NotFound))
             )
     })
         .bind(http_addr)
