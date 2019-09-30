@@ -12,6 +12,7 @@ pub type DS = MysqlR2D2DataService;
 pub trait DataService {
     fn is_email_taken(&self, email: &str) -> bool;
     fn persist_new_user(&self, usr_req: &Json<RegisterUserRequest>) -> String;
+    fn activate_by_token(&self, token: &str) -> bool;
 }
 
 #[derive(Clone, Debug)]
@@ -58,6 +59,20 @@ impl DataService for MysqlR2D2DataService {
                 "token" => &token
             }).unwrap();
 
+
         token
+    }
+
+    fn activate_by_token(&self, token: &str) -> bool {
+        let mut conn = self.db_pool.get().unwrap();
+
+        let r = conn.prep_exec(r"
+            UPDATE auth_users
+            SET is_active = 1, token = NULL
+            WHERE token = :token", params! {
+                "token" => &token,
+            }).unwrap().affected_rows();
+
+        return r > 0
     }
 }

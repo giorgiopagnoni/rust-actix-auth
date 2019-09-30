@@ -6,11 +6,11 @@ use validator::{Validate, ValidationErrors};
 use validator_derive::Validate;
 use futures::Future;
 use futures::future::ok as fut_ok;
-use futures::future::err as fut_err;
+
 use lettre_email::Email;
 use lettre::{SmtpClient, Transport};
 use std::borrow::Borrow;
-use actix_web::error::ErrorBadRequest;
+
 
 #[derive(Debug, Validate, Deserialize)]
 pub struct RegisterUserRequest {
@@ -57,5 +57,9 @@ pub fn user_register(usr_req: web::Json<RegisterUserRequest>,
 
 pub fn user_verify(token: web::Path<String>, ds: web::Data<DS>)
                    -> impl Future<Item=HttpResponse, Error=Error> {
-    return fut_ok(HttpResponse::NoContent().finish());
+    if ds.activate_by_token(&token) {
+        return fut_ok(HttpResponse::Ok().finish());
+    }
+
+    return fut_ok(HttpResponse::NotFound().finish());
 }
